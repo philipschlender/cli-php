@@ -9,6 +9,12 @@ use Cli\Models\OptionInterface;
 interface InputServiceInterface
 {
     /**
+     * @param array<int,OptionInterface>   $options
+     * @param array<int,ArgumentInterface> $arguments
+     */
+    public function initialize(array $options, array $arguments): static;
+
+    /**
      * @throws CliException
      */
     public function parse(): void;

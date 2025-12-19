@@ -7,9 +7,16 @@ use Cli\Services\InputServiceInterface;
 
 abstract class Command implements CommandInterface
 {
+    /**
+     * @param array<int,OptionInterface>   $options
+     * @param array<int,ArgumentInterface> $arguments
+     */
     public function __construct(
         protected InputServiceInterface $inputService,
+        array $options,
+        array $arguments,
     ) {
+        $this->inputService->initialize($options, $arguments);
     }
 
     /**

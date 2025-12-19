@@ -10,13 +10,31 @@ use Cli\Models\OptionInterface;
 class InputService implements InputServiceInterface
 {
     /**
+     * @var array<int,OptionInterface>
+     */
+    protected array $options;
+
+    /**
+     * @var array<int,ArgumentInterface>
+     */
+    protected array $arguments;
+
+    public function __construct()
+    {
+        $this->options = [];
+        $this->arguments = [];
+    }
+
+    /**
      * @param array<int,OptionInterface>   $options
      * @param array<int,ArgumentInterface> $arguments
      */
-    public function __construct(
-        protected array $options = [],
-        protected array $arguments = [],
-    ) {
+    public function initialize(array $options, array $arguments): static
+    {
+        $this->options = $options;
+        $this->arguments = $arguments;
+
+        return $this;
     }
 
     /**

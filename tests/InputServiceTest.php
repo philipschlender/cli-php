@@ -6,42 +6,41 @@ use Cli\Enumerations\ArgumentType;
 use Cli\Enumerations\OptionType;
 use Cli\Exceptions\CliException;
 use Cli\Models\Argument;
-use Cli\Models\ArgumentInterface;
 use Cli\Models\Option;
-use Cli\Models\OptionInterface;
 use Cli\Services\InputService;
 use Cli\Services\InputServiceInterface;
 
 class InputServiceTest extends TestCase
 {
-    /**
-     * @var array<int,OptionInterface>
-     */
-    protected array $options;
-
-    /**
-     * @var array<int,ArgumentInterface>
-     */
-    protected array $arguments;
-
     protected InputServiceInterface $inputService;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->options = [
+        $this->inputService = new InputService();
+    }
+
+    public function testInitialize(): void
+    {
+        $this->assertEmpty($this->inputService->getOptions());
+        $this->assertEmpty($this->inputService->getArguments());
+
+        $options = [
             new Option('first-option', 'f', OptionType::RequiredValue),
             new Option('second-option', 's', OptionType::OptionalValue),
             new Option('third-option', 't', OptionType::NoValue),
         ];
 
-        $this->arguments = [
+        $arguments = [
             new Argument('first-argument', ArgumentType::Required),
             new Argument('second-argument', ArgumentType::Optional),
         ];
 
-        $this->inputService = new InputService($this->options, $this->arguments);
+        $this->inputService->initialize($options, $arguments);
+
+        $this->assertEquals($options, $this->inputService->getOptions());
+        $this->assertEquals($arguments, $this->inputService->getArguments());
     }
 
     public function testParse(): void
@@ -51,12 +50,28 @@ class InputServiceTest extends TestCase
 
     public function testGetOptions(): void
     {
-        $this->assertEquals($this->options, $this->inputService->getOptions());
+        $this->assertEmpty($this->inputService->getOptions());
+
+        $options = [
+            new Option('first-option', 'f', OptionType::RequiredValue),
+            new Option('second-option', 's', OptionType::OptionalValue),
+            new Option('third-option', 't', OptionType::NoValue),
+        ];
+
+        $this->inputService->initialize($options, []);
+
+        $this->assertEquals($options, $this->inputService->getOptions());
     }
 
     public function testGetOption(): void
     {
-        $this->assertEquals($this->options[0], $this->inputService->getOption($this->options[0]->getName()));
+        $options = [
+            new Option('first-option', 'f', OptionType::RequiredValue),
+        ];
+
+        $this->inputService->initialize($options, []);
+
+        $this->assertEquals($options[0], $this->inputService->getOption($options[0]->getName()));
     }
 
     public function testGetOptionFailedToFindOption(): void
@@ -69,12 +84,27 @@ class InputServiceTest extends TestCase
 
     public function testGetArguments(): void
     {
-        $this->assertEquals($this->arguments, $this->inputService->getArguments());
+        $this->assertEmpty($this->inputService->getArguments());
+
+        $arguments = [
+            new Argument('first-argument', ArgumentType::Required),
+            new Argument('second-argument', ArgumentType::Optional),
+        ];
+
+        $this->inputService->initialize([], $arguments);
+
+        $this->assertEquals($arguments, $this->inputService->getArguments());
     }
 
     public function testGetArgument(): void
     {
-        $this->assertEquals($this->arguments[0], $this->inputService->getArgument($this->arguments[0]->getName()));
+        $arguments = [
+            new Argument('first-argument', ArgumentType::Required),
+        ];
+
+        $this->inputService->initialize([], $arguments);
+
+        $this->assertEquals($arguments[0], $this->inputService->getArgument($arguments[0]->getName()));
     }
 
     public function testGetArgumentFailedToFindArgument(): void
