@@ -9,22 +9,21 @@ use Cli\Models\Command;
 use Cli\Models\Option;
 use Cli\Models\OptionInterface;
 use Cli\Services\InputService;
+use Cli\Services\InputServiceInterface;
 use Json\Exceptions\JsonException;
 use Json\Services\JsonService;
 use Json\Services\JsonServiceInterface;
 
 require_once realpath(sprintf('%s/../vendor/autoload.php', __DIR__));
 
-$command = new class extends Command {
-    protected JsonServiceInterface $jsonService;
-
+$command = new class(new InputService(), new JsonService()) extends Command {
     /**
      * @throws CliException
      */
-    public function __construct()
-    {
-        $this->jsonService = new JsonService();
-
+    public function __construct(
+        InputServiceInterface $inputService,
+        protected JsonServiceInterface $jsonService,
+    ) {
         $options = [
             new Option('first-option', 'f', OptionType::RequiredValue),
             new Option('second-option', 's', OptionType::OptionalValue),
@@ -36,7 +35,7 @@ $command = new class extends Command {
             new Argument('second-argument', ArgumentType::Optional),
         ];
 
-        parent::__construct(new InputService($options, $arguments));
+        parent::__construct($inputService, $options, $arguments);
     }
 
     /**
