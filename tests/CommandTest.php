@@ -24,6 +24,18 @@ class CommandTest extends TestCase
 
         $this->inputService = $this->getMockBuilder(InputServiceInterface::class)->getMock();
 
+        $this->inputService->expects($this->once())
+            ->method('initialize')
+            ->with(
+                $this->callback(function ($options) {
+                    return !empty($options);
+                }),
+                $this->callback(function ($arguments) {
+                    return !empty($arguments);
+                })
+            )
+            ->willReturnSelf();
+
         $this->command = new class($this->inputService) extends Command {
             /**
              * @throws CliException
